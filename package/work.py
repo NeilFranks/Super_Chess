@@ -18,6 +18,7 @@ DARK_BROWN = (100, 50, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+PURPLE = (255, 0, 255)
 
 
 def drawBoard(colors):
@@ -139,7 +140,7 @@ def prune(ourSquare, otherSquare, moveList):
                     moveList.remove(tempIndex)
                 tempIndex = tempIndex - 8
 
-    # blocking piece is in same row (maybe, could be a knight move)
+    # blocking piece is in same row (maybe, could be a knight or pawn move)
     if -7 <= distance < 0:  # would be on RHS
         if ourSquare / 8 == otherSquare / 8:  # check if really on the same row
             # remove pieces right of blocking piece
@@ -149,13 +150,13 @@ def prune(ourSquare, otherSquare, moveList):
                     moveList.remove(tempIndex)
                 tempIndex = tempIndex + 1
 
-        else:
-            # remove pieces left of blocking piece
-            tempIndex = otherSquare - 1
-            while tempIndex / 8 == ourSquare / 8:
-                if tempIndex in moveList:
-                    moveList.remove(tempIndex)
-                tempIndex = tempIndex - 1
+#         else:
+#             # remove pieces left of blocking piece
+#             tempIndex = otherSquare - 1
+#             while tempIndex / 8 == ourSquare / 8:
+#                 if tempIndex in moveList:
+#                     moveList.remove(tempIndex)
+#                 tempIndex = tempIndex - 1
 
     elif 0 < distance <= 7:  # would be on LHS
         if ourSquare / 8 == otherSquare / 8:  # check if really on the same row
@@ -166,13 +167,13 @@ def prune(ourSquare, otherSquare, moveList):
                     moveList.remove(tempIndex)
                 tempIndex = tempIndex - 1
 
-        else:
-            # remove pieces right of blocking piece
-            tempIndex = otherSquare + 1
-            while tempIndex / 8 == ourSquare / 8:
-                if tempIndex in moveList:
-                    moveList.remove(tempIndex)
-                tempIndex = tempIndex + 1
+#         else:
+#             # remove pieces right of blocking piece
+#             tempIndex = otherSquare + 1
+#             while tempIndex / 8 == ourSquare / 8:
+#                 if tempIndex in moveList:
+#                     moveList.remove(tempIndex)
+#                 tempIndex = tempIndex + 1
 
     return moveList
 
@@ -194,6 +195,7 @@ def pawnMoves(position, team, pawnMoved):
                 moveSquares.add(position - 8)
             if position - 16 >= 0:
                 moveSquares.add(position - 16)
+
     else:  # black pawns can only move to higher number squares
         if pawnMoved:  # if pawn has been moved already, it can't move two squares ahead
             if position + 8 < 64:
@@ -294,19 +296,23 @@ def bishopMoves(position):
 def kingMoves(position):
     moveSquares = Set([])
 
-    moveSquares.add(position - 1)
-    moveSquares.add(position + 7)
-    moveSquares.add(position + 8)
-    moveSquares.add(position + 9)
-    moveSquares.add(position + 1)
-    moveSquares.add(position - 7)
-    moveSquares.add(position - 8)
-    moveSquares.add(position - 9)
+    if position % 8 > 0:
+        moveSquares.add(position - 1)
+        if position / 8 > 0:
+            moveSquares.add(position - 7)
+        if position / 8 < 7:
+            moveSquares.add(position + 7)
 
-    # get rid of possibilities that aren't on the board
-    for square in moveSquares:
-        if square < 0 | square > 63:
-            moveSquares.remove(square)
+    if position % 8 < 7:
+        moveSquares.add(position + 1)
+        if position / 8 > 0:
+            moveSquares.add(position - 9)
+        if position / 8 < 7:
+            moveSquares.add(position + 9)
+    if position / 8 > 0:
+        moveSquares.add(position - 8)
+    if position / 8 < 7:
+        moveSquares.add(position + 8)
 
     return moveSquares
 
