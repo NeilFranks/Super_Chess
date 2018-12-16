@@ -54,6 +54,9 @@ def highlight(square, color):
     # bottom
     pygame.draw.line(DISPLAY, color, botLeft, botRight, thickness)
 
+#     pygame.display.flip()
+#     pygame.time.wait(50)
+
 
 def getSquareCenter(coord):
 

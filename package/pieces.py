@@ -50,9 +50,55 @@ class ChessPiece(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
 
-    def update(self, position):
+    def updatePiece(self, position):
         self.square = position
         self.rect.center = position.center
+        self.coordinates = position.center
+
+    def mergePiece(self, position, otherPiece):
+        self.pawn = self.pawn or otherPiece.pawn
+        self.rook = self.rook or otherPiece.rook
+        self.knight = self.knight or otherPiece.knight
+        self.bishop = self.bishop or otherPiece.bishop
+        self.king = self.king or otherPiece.king
+        self.queen = self.queen or otherPiece.queen
+
+        # fill in name of image fil
+        name = ''
+        if self.team == 'White':
+            name = 'w'
+        else:
+            name = 'b'
+
+        if self.pawn:
+            name = name + 'p'
+
+        if self.rook:
+            name = name + 'r'
+
+        if self.bishop:
+            name = name + 'b'
+
+        if self.knight:
+            name = name + 'n'
+
+        if self.king:
+            name = name + 'k'
+
+        if self.queen:
+            name = name + 'q'
+
+        name = name + '.png'
+
+        # get image
+        self.image = pygame.image.load(os.path.join(image_path, name))
+        self.image = pygame.transform.scale(
+            self.image, (boardWidth / 8, boardWidth / 8))
+        self.square = position
+        self.rect = pygame.Rect(self.image.get_rect())
+        self.rect.topleft = position.topleft
+        self.rect.center = position.center
+        self.coordinates = position.center
 
     # finds nearest pieces on various paths and removes unreachable pieces
     def pieceBlock(self, square, moveList):
@@ -98,29 +144,29 @@ drawBoard((DARK_BROWN, LIGHT_BROWN))
 
 # initialize pieces
 Pieces = [
-    ChessPiece('bpawn.png', squareCenters[21], 'Black', 'p'),
-    ChessPiece('bpawn.png', squareCenters[35], 'Black', 'p'),
-    ChessPiece('bpawn.png', squareCenters[14], 'Black', 'p'),
-    ChessPiece('bpawn.png', squareCenters[8], 'Black', 'p'),
-    ChessPiece('bpawn.png', squareCenters[7], 'Black', 'p'),
-    ChessPiece('bpawn.png', squareCenters[59], 'Black', 'p'),
-    ChessPiece('bpawn.png', squareCenters[29], 'Black', 'p'),
-    ChessPiece('wbishop.png', squareCenters[13], 'White', 'b'),
-    ChessPiece('wbishop.png', squareCenters[11], 'White', 'b'),
-    ChessPiece('bbishop.png', squareCenters[32], 'Black', 'b'),
-    ChessPiece('bbishop.png', squareCenters[43], 'Black', 'b'),
-    ChessPiece('wknight.png', squareCenters[61], 'White', 'n'),
-    ChessPiece('wknight.png', squareCenters[27], 'White', 'n'),
-    ChessPiece('bknight.png', squareCenters[23], 'Black', 'n'),
-    ChessPiece('bknight.png', squareCenters[16], 'Black', 'n'),
-    ChessPiece('wrook.png', squareCenters[22], 'White', 'r'),
-    ChessPiece('wrook.png', squareCenters[60], 'White', 'r'),
-    ChessPiece('brook.png', squareCenters[54], 'Black', 'r'),
-    ChessPiece('brook.png', squareCenters[2], 'Black', 'r'),
-    ChessPiece('bking.png', squareCenters[38], 'Black', 'k'),
-    ChessPiece('wking.png', squareCenters[50], 'White', 'k'),
-    ChessPiece('bqueen.png', squareCenters[52], 'Black', 'q'),
-    ChessPiece('wqueen.png', squareCenters[5], 'White', 'q'),
+    ChessPiece('bp.png', squareCenters[21], 'Black', 'p'),
+    ChessPiece('bp.png', squareCenters[35], 'Black', 'p'),
+    ChessPiece('bp.png', squareCenters[14], 'Black', 'p'),
+    ChessPiece('bp.png', squareCenters[8], 'Black', 'p'),
+    ChessPiece('bp.png', squareCenters[7], 'Black', 'p'),
+    ChessPiece('bp.png', squareCenters[59], 'Black', 'p'),
+    ChessPiece('bp.png', squareCenters[29], 'Black', 'p'),
+    ChessPiece('wb.png', squareCenters[13], 'White', 'b'),
+    ChessPiece('wb.png', squareCenters[11], 'White', 'b'),
+    ChessPiece('bb.png', squareCenters[32], 'Black', 'b'),
+    ChessPiece('bb.png', squareCenters[43], 'Black', 'b'),
+    ChessPiece('wn.png', squareCenters[61], 'White', 'n'),
+    ChessPiece('wn.png', squareCenters[27], 'White', 'n'),
+    ChessPiece('bn.png', squareCenters[23], 'Black', 'n'),
+    ChessPiece('bn.png', squareCenters[16], 'Black', 'n'),
+    ChessPiece('wr.png', squareCenters[22], 'White', 'r'),
+    ChessPiece('wr.png', squareCenters[60], 'White', 'r'),
+    ChessPiece('br.png', squareCenters[54], 'Black', 'r'),
+    ChessPiece('br.png', squareCenters[2], 'Black', 'r'),
+    ChessPiece('bk.png', squareCenters[38], 'Black', 'k'),
+    ChessPiece('wk.png', squareCenters[50], 'White', 'k'),
+    ChessPiece('bq.png', squareCenters[52], 'Black', 'q'),
+    ChessPiece('wq.png', squareCenters[5], 'White', 'q'),
     #     ChessPiece('wpawn.png', squareCenters[48], 'White', 'p'),
     #     ChessPiece('wpawn.png', squareCenters[49], 'White', 'p'),
     #     ChessPiece('wpawn.png', squareCenters[50], 'White', 'p'),
