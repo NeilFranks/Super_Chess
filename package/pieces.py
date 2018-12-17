@@ -23,6 +23,9 @@ class ChessPiece(pygame.sprite.Sprite):
         self.pawnMoved = False  # for only allowing pawns to move 2 spaces for their first move
         self.team = team
 
+        self.imageName = image
+        self.piece = piece
+
         # get image
         self.image = pygame.image.load(os.path.join(image_path, image))
         self.image = pygame.transform.scale(
@@ -34,44 +37,26 @@ class ChessPiece(pygame.sprite.Sprite):
         self.coordinates = position.center
 
         # set initial piece
-        if piece == 'p':
+        if 'p' in self.piece:
             self.pawn = True
-        elif piece == 'r':
+        if 'r' in self.piece:
             self.rook = True
-        elif piece == 'n':
+        if 'n' in self.piece:
             self.knight = True
-        elif piece == 'b':
+        if 'b' in self.piece:
             self.bishop = True
-        elif piece == 'k':
+        if 'k' in self.piece:
             self.king = True
-        elif piece == 'q':
+        if 'q' in self.piece:
             self.queen = True
 
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
 
     def updatePiece(self, position):
-        # remember where you came from
-        oldSquare = getSquare(self.coordinates)
-
-        # update
         self.square = position
         self.rect.center = position.center
         self.coordinates = position.center
-
-        newSquare = getSquare(self.coordinates)
-
-        # register a pawn move
-        # CAN CHANGE: should it count as pawn move if a merged piece moves in a
-        # way a pawn cant?
-        if self.pawn:
-            diff = oldSquare - newSquare
-            if self.team == "White":
-                if diff == 8 or diff == 16:  # thats a pawn move
-                    self.pawnMoved = True
-            else:
-                if diff == -8 or diff == -16:  # thats a pawn move
-                    self.pawnMoved = True
 
     def mergePiece(self, position, otherPiece):
         if self.pawn and otherPiece.pawn:  # both pieces have pawn characteristics
@@ -87,35 +72,39 @@ class ChessPiece(pygame.sprite.Sprite):
         self.king = self.king or otherPiece.king
         self.queen = self.queen or otherPiece.queen
 
-        # fill in name of image fil
-        name = ''
+        # fill in name of image file
+        team = ''
         if self.team == 'White':
-            name = 'w'
+            team = 'w'
         else:
-            name = 'b'
+            team = 'b'
 
+        piece = ''
         if self.pawn:
-            name = name + 'p'
+            piece = piece + 'p'
 
         if self.rook:
-            name = name + 'r'
+            piece = piece + 'r'
 
         if self.bishop:
-            name = name + 'b'
+            piece = piece + 'b'
 
         if self.knight:
-            name = name + 'n'
+            piece = piece + 'n'
 
         if self.king:
-            name = name + 'k'
+            piece = piece + 'k'
 
         if self.queen:
-            name = name + 'q'
+            piece = piece + 'q'
 
-        name = name + '.png'
+        self.imageName = team + piece + '.png'
+
+        self.piece = piece
 
         # get image
-        self.image = pygame.image.load(os.path.join(image_path, name))
+        self.image = pygame.image.load(
+            os.path.join(image_path, self.imageName))
         self.image = pygame.transform.scale(
             self.image, (boardWidth / 8, boardWidth / 8))
         self.square = position
