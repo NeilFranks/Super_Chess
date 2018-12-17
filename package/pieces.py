@@ -1,11 +1,5 @@
 from work import *
-import os
 from test.pyclbr_input import Other
-
-
-# directory information
-current_path = os.path.dirname(__file__)
-image_path = os.path.join(current_path, 'images')
 
 
 class ChessPiece(pygame.sprite.Sprite):

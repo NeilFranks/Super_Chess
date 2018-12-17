@@ -5,6 +5,7 @@ from pygame.locals import QUIT, KEYUP, K_ESCAPE, Rect
 import sys
 from sys import exit
 from test.pyclbr_input import Other
+import os
 
 
 import sets
@@ -19,6 +20,11 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
+GRAY = (150, 150, 150)
+
+# directory information
+current_path = os.path.dirname(__file__)
+image_path = os.path.join(current_path, 'images')
 
 
 def drawBoard(colors):
@@ -296,17 +302,17 @@ def bishopMoves(position):
 def kingMoves(position):
     moveSquares = Set([])
 
-    if position % 8 > 0:
+    if position % 8 > 0:  # not in left column
         moveSquares.add(position - 1)
         if position / 8 > 0:
-            moveSquares.add(position - 7)
+            moveSquares.add(position - 9)
         if position / 8 < 7:
             moveSquares.add(position + 7)
 
     if position % 8 < 7:
         moveSquares.add(position + 1)
         if position / 8 > 0:
-            moveSquares.add(position - 9)
+            moveSquares.add(position - 7)
         if position / 8 < 7:
             moveSquares.add(position + 9)
     if position / 8 > 0:

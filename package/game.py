@@ -19,6 +19,12 @@ from test.test_builtin import Squares
 boards = []
 boardIdx = -1
 
+# will indicate promote menu is open
+promote = False
+
+# will indicate square to promote to
+promoteSquare = -1  # initialize to arbitrary number
+
 
 def saveBoard():
     global boardIdx
@@ -68,7 +74,40 @@ def flash(square, color):
     pygame.time.wait(100)
 
 
+def promotePiece():
+    global promote
+    promote = True
+
+    menu = Rect(0.3 * boardHeight, 0.4 * boardHeight, .4 *
+                boardHeight, .2 * boardHeight)
+    pygame.draw.rect(DISPLAY, GRAY, menu)
+    # get images
+    qImage = pygame.image.load(os.path.join(image_path, "bq.png"))
+    qImage = pygame.transform.scale(
+        qImage, (boardWidth / 5, boardWidth / 5))
+    qRect = pygame.Rect(qImage.get_rect())
+    qRect.topleft = (.3 * boardHeight, .4 * boardHeight)
+
+    nImage = pygame.image.load(os.path.join(image_path, "bn.png"))
+    nImage = pygame.transform.scale(
+        nImage, (boardWidth / 5, boardWidth / 5))
+    nRect = pygame.Rect(qImage.get_rect())
+    nRect.topleft = (.5 * boardHeight, .4 * boardHeight)
+
+    DISPLAY.blit(qImage, qRect.topleft)
+    DISPLAY.blit(nImage, nRect.topleft)
+
+    pygame.display.flip()
+
+
 def main():
+
+    global promote
+    promote = False
+    global promoteSquare
+    promoteSquare = -1
+    global Pieces
+
     saveBoard()
 
     gc.enable()
@@ -77,7 +116,6 @@ def main():
     teamIdx = 0  # white starts
     pieceSelected = False
 
-    global Pieces
     currentPiece = Pieces[0]  # arbitrary initialization
     moveList = Set([])
 
@@ -94,6 +132,19 @@ def main():
         team = teams[teamIdx]
 
         moved = False
+        # check for pawns who made it to the end
+        for piece in Pieces:
+            if piece.pawn and not (piece.rook or piece.knight or piece.bishop or piece.queen or piece.king):
+                square = getSquare(piece.coordinates)
+                if piece.team == "White" and square / 8 == 0:
+                    promoteSquare = square
+                    promotePiece()
+                    Pieces.remove(piece)
+
+                elif piece.team == "Black" and square / 8 == 7:
+                    promoteSquare = square
+                    promotePiece()
+                    Pieces.remove(piece)
 
         # check for check on your team
         for checkPiece in Pieces:
@@ -135,8 +186,39 @@ def main():
                 centerOfSquare = getSquareCenter(cursor)
                 selectedSquare = getSquare(cursor)
 
+                if promote:  # must choose queen or knight from menu
+                    if (0.3 * boardHeight <= cursor[0] <= 0.5 * boardHeight) and (0.4 * boardHeight <= cursor[1] <= 0.6 * boardHeight):
+                        choose = 'Queen'
+                    elif (0.5 * boardHeight <= cursor[0] <= 0.7 * boardHeight) and (0.4 * boardHeight <= cursor[1] <= 0.6 * boardHeight):
+                        choose = 'Knight'
+
+                    if promoteSquare < 8:  # in top row, so white was there
+                        if choose == 'Queen':
+                            Pieces.append(ChessPiece(
+                                'wq.png', squareCenters[promoteSquare], 'White', 'q'))
+                        elif choose == 'Knight':
+                            Pieces.append(ChessPiece(
+                                'wn.png', squareCenters[promoteSquare], 'White', 'n'))
+
+                        promote = False
+                        promoteSquare = -1
+
+                    elif promoteSquare > 55:  # in bottom row, so black was there
+                        if choose == 'Queen':
+                            Pieces.append(ChessPiece(
+                                'bq.png', squareCenters[promoteSquare], 'Black', 'q'))
+                        elif choose == 'Knight':
+                            Pieces.append(ChessPiece(
+                                'bn.png', squareCenters[promoteSquare], 'Black', 'n'))
+
+                        promote = False
+                        promoteSquare = -1
+
+                    clearLines()
+
                 # check if square is in movelist of selected piece
-                if pieceSelected:
+                elif pieceSelected:
+
                     if selectedSquare in moveList:
 
                         # check if this square has a piece on it
@@ -213,11 +295,15 @@ def main():
                                         currentPiece.updatePiece(
                                             squareCenters[selectedSquare])
 
+                                        # remove the enemy piece
+                                        Pieces.remove(piece)
+
                                         moved = True
 
                                         for checkPiece in Pieces:
                                             if checkPiece.king:
                                                 if checkPiece.team == team:
+
                                                     if checkPiece.inCheck():  # you're putting yourself in check
 
                                                         flash(
@@ -228,13 +314,12 @@ def main():
                                                         currentPiece.updatePiece(
                                                             squareCenters[currentSquare])
 
+                                                        # undo removal of piece
+                                                        Pieces.append(piece)
+
                                                         # indicate you didnt
                                                         # move
                                                         moved = False
-                                                    else:
-                                                        # make the move and remove the
-                                                        # enermy piece
-                                                        Pieces.remove(piece)
                                     else:  # you're trying to move your king into an enemy
                                         # remember what square currentPiece is
                                         # on
@@ -346,7 +431,7 @@ def main():
                         pieceSelected = False
 
                 # find piece if you clicked on one
-                if not moved:
+                if not moved and not promote:
                     global boardIdx
                     if boardIdx < len(boards) - 1:  # you are on a past board
 
